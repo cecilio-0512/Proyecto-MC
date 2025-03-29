@@ -5,12 +5,16 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 from scipy.stats import kurtosis, skew, shapiro ,norm
+from datetime import datetime
 
 st.title("Análisis estadístico rendimientos acciones NVIDIA")
 
 @st.cache_data
+
+#Obtenemos los datos desde 2010 al día actual que se esté consultando el precio de la acción
 def obtener_datos(stocks):
-    df = yf.download(stocks, period="1y")['Close']
+    end_date = datetime.today().strftime("%Y-%m-%d")  # Obtiene la fecha actual
+    df = yf.download(stocks, start="2010-01-01", end=end_date)['Close']
     return df
 
 @st.cache_data
