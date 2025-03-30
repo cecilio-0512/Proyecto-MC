@@ -111,7 +111,7 @@ if stock_seleccionado:
     MCVaR_95 = np.percentile(sim_returns, 5)
 
     CVaR_95 = (df_rendimientos[stock_seleccionado][df_rendimientos[stock_seleccionado] <= hVaR_95].mean())
-    st.subheader("Metricas de riesgo con confianza del 95%")
+    st.subheader("Métricas de riesgo con confianza del 95%")
     
     col4, col5, col6, col7= st.columns(4)
     col4.metric("VaR paramétrico", f"{VaR_95:.4%}")
@@ -166,7 +166,7 @@ if stock_seleccionado:
     # CVar
 
     CVaR_97_5 = (df_rendimientos[stock_seleccionado][df_rendimientos[stock_seleccionado] <= hVaR_97_5].mean())
-    st.subheader("Metricas de riesgo con confianza del 97.5%")
+    st.subheader("Métricas de riesgo con confianza del 97.5%")
     
     col4, col5, col6, col7= st.columns(4)
     col4.metric("VaR paramétrico", f"{VaR_97_5:.4%}")
@@ -184,7 +184,7 @@ if stock_seleccionado:
 
     # Identificar y colorear de rojo las barras a la izquierda de hVaR_95
     for bin_left, bin_right, patch in zip(bins, bins[1:], patches):
-        if bin_left < hVaR_95:
+        if bin_left < hVaR_97_5:
             patch.set_facecolor('red')
 
     # Marcar las líneas de VaR y CVaR
@@ -192,6 +192,62 @@ if stock_seleccionado:
     ax.axvline(x=MCVaR_97_5, color='grey', linestyle='--', label='VaR 97.5% (Monte Carlo)')
     ax.axvline(x=hVaR_97_5, color='green', linestyle='--', label='VaR 97.5% (Histórico)')
     ax.axvline(x=CVaR_97_5, color='purple', linestyle='-.', label='CVaR 97.5%')
+
+    # Configurar etiquetas y leyenda
+    ax.set_title("Histograma de Rendimientos con VaR y CVaR")
+    ax.set_xlabel("Rendimiento Diario")
+    ax.set_ylabel("Frecuencia")
+    ax.legend()
+
+    # Mostrar la figura en Streamlit
+    st.pyplot(fig)
+
+
+
+    ############################################ CONFIANZA DEL 99% ###############################################################
+
+
+    # VaR Parametrico
+
+    VaR_99 = (norm.ppf(1-0.99,mean,stdev))
+
+    # Historical VaR
+    hVaR_99 = (df_rendimientos[stock_seleccionado].quantile(0.01))
+
+    # Monte Carlo
+
+    MCVaR_99 = np.percentile(sim_returns,1 )
+ 
+
+    # CVar
+
+    CVaR_99 = (df_rendimientos[stock_seleccionado][df_rendimientos[stock_seleccionado] <= hVaR_99].mean())
+    st.subheader("Métricas de riesgo con confianza del 99%")
+    
+    col4, col5, col6, col7= st.columns(4)
+    col4.metric("VaR paramétrico", f"{VaR_99:.4%}")
+    col5.metric("Var histórico", f"{hVaR_99:.4%}")
+    col6.metric("Var Monte Carlo", f"{MCVaR_99:.4%}")
+    col7.metric("CVaR", f"{CVaR_99:.4%}")
+
+    
+
+    # Crear la figura y el eje
+    fig, ax = plt.subplots(figsize=(13, 5))
+
+    # Generar histograma
+    n, bins, patches = ax.hist(df_rendimientos[stock_seleccionado], bins=50, color='blue', alpha=0.7, label='Returns')
+
+    # Identificar y colorear de rojo las barras a la izquierda de hVaR_95
+    for bin_left, bin_right, patch in zip(bins, bins[1:], patches):
+        if bin_left < hVaR_99:
+            patch.set_facecolor('red')
+
+    # Marcar las líneas de VaR y CVaR
+    ax.axvline(x=VaR_99, color='skyblue', linestyle='--', label='VaR 99% (Paramétrico)')
+    ax.axvline(x=MCVaR_99, color='grey', linestyle='--', label='VaR 99% (Monte Carlo)')
+    ax.axvline(x=hVaR_99, color='green', linestyle='--', label='VaR 99% (Histórico)')
+    ax.axvline(x=CVaR_99, color='purple', linestyle='-.', label='CVaR 99%')
 
     # Configurar etiquetas y leyenda
     ax.set_title("Histograma de Rendimientos con VaR y CVaR")
