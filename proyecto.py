@@ -112,13 +112,29 @@ if stock_seleccionado:
     MCVaR_95 = np.percentile(sim_returns, 5)
 
     CVaR_95 = (df_rendimientos[stock_seleccionado][df_rendimientos[stock_seleccionado] <= hVaR_95].mean())
+
+    #Var con t_student
+
+    # Ajustamos la distribución t de Student a los rendimientos
+    params = stats.t.fit(df_rendimientos[stock_seleccionado])
+
+
+    # Calculo del VaR parametrico usando una t-student
+    df, mean, stdev = params
+
+   # Calcular el VaR usando t-Student al 95%
+    tstudent_VaR_95 = stats.t.ppf(0.05, df, loc=mean, scale=stdev)
+
+
+         
     st.subheader("Métricas de riesgo con confianza del 95%")
     
-    col4, col5, col6, col7= st.columns(4)
-    col4.metric("VaR paramétrico", f"{VaR_95:.4%}")
-    col5.metric("Var histórico", f"{hVaR_95:.4%}")
-    col6.metric("Var Monte Carlo", f"{MCVaR_95:.4%}")
-    col7.metric("CVaR", f"{CVaR_95:.4%}")
+    col4, col5, col6, col7, col8 = st.columns(5)
+    col4.metric("VaR Distr Normal", f"{VaR_95:.4%}")
+    col5.metric("VaR Distr t", f"{tstudent_VaR_95:.4%}")
+    col6.metric("Var histórico", f"{hVaR_95:.4%}")
+    col7.metric("Var Monte Carlo", f"{MCVaR_95:.4%}")
+    col8.metric("CVaR", f"{CVaR_95:.4%}")
 
     
 
@@ -168,12 +184,17 @@ if stock_seleccionado:
 
     CVaR_97_5 = (df_rendimientos[stock_seleccionado][df_rendimientos[stock_seleccionado] <= hVaR_97_5].mean())
     st.subheader("Métricas de riesgo con confianza del 97.5%")
+
+
+    # Calcular el VaR usando t-Student al 97.5%
+    tstudent_VaR_97_5 = stats.t.ppf(0.025, df, loc=mean, scale=stdev)
     
-    col4, col5, col6, col7= st.columns(4)
-    col4.metric("VaR paramétrico", f"{VaR_97_5:.4%}")
-    col5.metric("Var histórico", f"{hVaR_97_5:.4%}")
-    col6.metric("Var Monte Carlo", f"{MCVaR_97_5:.4%}")
-    col7.metric("CVaR", f"{CVaR_97_5:.4%}")
+    col4, col5, col6, col7, col8 = st.columns(5)
+    col4.metric("VaR Distr Normal", f"{VaR_95:.4%}")
+    col5.metric("VaR Distr t", f"{tstudent_VaR_97_5:.4%}")
+    col6.metric("Var histórico", f"{hVaR_95:.4%}")
+    col7.metric("Var Monte Carlo", f"{MCVaR_95:.4%}")
+    col8.metric("CVaR", f"{CVaR_95:.4%}")
 
     
 
@@ -224,12 +245,18 @@ if stock_seleccionado:
 
     CVaR_99 = (df_rendimientos[stock_seleccionado][df_rendimientos[stock_seleccionado] <= hVaR_99].mean())
     st.subheader("Métricas de riesgo con confianza del 99%")
+
+    # Calcular el VaR usando t-Student al 97.5%
+    tstudent_VaR_99 = stats.t.ppf(0.01, df, loc=mean, scale=stdev)
+
     
-    col4, col5, col6, col7= st.columns(4)
-    col4.metric("VaR paramétrico", f"{VaR_99:.4%}")
-    col5.metric("Var histórico", f"{hVaR_99:.4%}")
-    col6.metric("Var Monte Carlo", f"{MCVaR_99:.4%}")
-    col7.metric("CVaR", f"{CVaR_99:.4%}")
+    col4, col5, col6, col7, col8 = st.columns(5)
+    col4.metric("VaR Distr Normal", f"{VaR_95:.4%}")
+    col5.metric("VaR Distr t", f"{tstudent_VaR_99:.4%}")
+    col6.metric("Var histórico", f"{hVaR_95:.4%}")
+    col7.metric("Var Monte Carlo", f"{MCVaR_95:.4%}")
+    col8.metric("CVaR", f"{CVaR_95:.4%}")
+
 
     
 
@@ -258,6 +285,8 @@ if stock_seleccionado:
 
     # Mostrar la figura en Streamlit
     st.pyplot(fig)
+
+
 
     ##################################################################################################################################
     ################################################# VaR y CVar Rolling Windows #####################################################
@@ -421,13 +450,17 @@ if stock_seleccionado:
                                         porcentaje_var_hist_99, porcentaje_cvar_hist_99]
     })
     
-    # Resetear el índice y eliminarlo
+   # Resetear el índice y eliminarlo
     resultados = resultados.reset_index(drop=True)
 
     # Mostrar la tabla sin los índices
     st.subheader("Resultados de Violaciones y Porcentaje de Violaciones para VaR y CVaR")
     st.dataframe(resultados)
 
+    st.write("De acuerdo con los resultados obtenidos en la gráfica y la tabla, en general, nuestras estimaciones son precisas. Sin embargo, se observa que las métricas de VaR histórico y paramétrico al 99% de confianza presentan un mayor margen de error. Esto podría explicarse por el hecho de que se está utilizando un modelo basado en una distribución normal, cuando en realidad los rendimientos podrían seguir una distribución con colas más pesadas, lo cual es típico en los mercados financieros.")
+
+    st.write("Por otro lado, es evidente que las métricas con menos errores son las de CVaR. Esto no es sorprendente, ya que estas métricas están diseñadas para capturar los valores más extremos en la cola de la distribución, lo que las hace más precisas para detectar los eventos de riesgo más severos.")
+    
 
     ## EJERCICIO F
 
