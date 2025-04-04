@@ -468,7 +468,7 @@ if stock_seleccionado:
 
     df = yf.download('NVDA', start='2010-01-01')['Close']
     returns = df.pct_change().dropna()
-    returns
+   
 
     #EL EJERCICO NOS PIDE CALCULAR EL VaR EN FUNCION DEL CUANTIL CON SIGNIFICANCIA ALPHA Y UNA DESVIACIÓN ESTANDAR DE UNA VENTANA DE 252 RETORNOS
 
@@ -491,6 +491,9 @@ if stock_seleccionado:
     vaR_99_volatil_df.set_index('Date', inplace=True)
     
     
+    st.subheader("Análisis de Var calculado con método alternativo mediante ventanas moviles a 95% y 99% de Confianza")
+
+
 
 # Crear una figura
     plt.figure(figsize=(14, 7))
@@ -516,7 +519,7 @@ if stock_seleccionado:
     plt.tight_layout()
 
 # Mostrar la gráfica
-    plt.show()
+    st.pyplot(plt)
     
     
     
@@ -540,11 +543,11 @@ violations_99_percentage = (violations_99_count / total_data_points) * 100
 
 results_df = pd.DataFrame({
     'Significancia Alpha': ['0.05', '0.01'],  # Las filas serán para los valores de alpha 0.05 y 0.01
-    'Número de Violaciones': [violations_95_count, violations_99_count],  # Violaciones al 95% y 99%
-    'Porcentaje de Violaciones': [f"{violations_95_percentage:.2f}%", f"{violations_99_percentage:.2f}%"]  # Porcentaje de violaciones con símbolo %
+    'Violaciones': [violations_95_count, violations_99_count],  # Violaciones al 95% y 99%
+    'Porcentaje de Violaciones (%)': [f"{violations_95_percentage:.2f}%", f"{violations_99_percentage:.2f}%"]  # Porcentaje de violaciones con símbolo %
 })
 # Mostrar la tabla
-print(results_df)
+st.dataframe(results_df)
 
 
 
